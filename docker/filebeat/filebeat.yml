@@ -1,0 +1,22 @@
+processors:
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+
+  - decode_json_fields:
+      fields: ["message"]
+      target: "json"
+      overwrite_keys: true
+
+filebeat.inputs:
+  - type: log
+    paths:
+      - /var/log/web_crawler_ipiad/*.log
+
+output.logstash:
+  enabled: true
+  hosts: ["172.28.0.5:5044"]
+
+logging.json: true
+logging.metrics.enabled: false
+logging.to_files: false
+logging.level: debug

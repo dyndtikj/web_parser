@@ -1,0 +1,113 @@
+GET news/_search
+{
+  "query": {
+    "query_string": {
+      "query": "(Минаж) OR (Грузия)",
+      "default_field": "text"
+    }
+  }
+}
+
+
+
+
+
+
+        // SCRIPT
+        SearchResponse<NewsEntity> scriptResponse = elasticsearchClient.search(s -> s
+                        .index(INDEX_NAME)
+                        .query(q -> q
+                                .scriptScore(ss -> ss
+                                        .query(q1 -> q1
+                                                .matchAll(ma -> ma))
+                                        .script(scr -> scr
+                                                .inline(i -> i
+                                                        .source("doc['url'].value.length()"))))),
+                NewsEntity.class
+        );
+        printQuery(scriptResponse, "SCRIPT");
+
+
+                // MULTIGET
+                MgetResponse<NewsEntity> mgetResponse = elasticsearchClient.mget(mgq -> mgq
+                                .index(INDEX_NAME)
+                                .docs(d -> d
+                                        .id("44c98864-358b-40ce-8318-2f94aae654bd")
+                                        .id("14cfb51c-c127-44ec-8833-c5c7fb95cfde")),
+
+                        NewsEntity.class
+                );
+                List<NewsEntity> mgetHits = new ArrayList<>();
+                System.out.println(mgetResponse.toString());
+                mgetHits.add(mgetResponse.docs().getFirst().result().source());
+                logger.info("Search results for <MULTIGET>");
+                for (NewsEntity NewsEntity: mgetHits) {
+                    assert NewsEntity != null;
+                    logger.debug(NewsEntity.toString());
+                }
+                System.out.println();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ### Logs Aggregation
+                ```
+                GET /logstash*/_search
+                {
+                  "size": 0,
+                  "aggs": {
+                    "streams": {
+                      "terms": {
+                        "field": "stream.keyword",
+                        "size": 10
+                      }
+                    }
+                  }
+                }
+                ```
+
+                GET /news/_search
+                {
+                  "size": -1,
+                  "_source": ["summary", "text"],
+                  "sort": [{"summary": "desc"}]
+                }
+
+                GET /news/_search
+                {
+                  "query": {
+                    "match": {
+                      "summary": "Японию"
+                    }
+                  }
+                }
+
+
+                POST /logstash-2024.05.27-000001/_search
+                {
+                  "query": {
+                    "match": {
+                      "message": "Тбилиси"
+                    }
+                  }
+                }
+
