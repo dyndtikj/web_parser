@@ -48,7 +48,7 @@ public class ElasticStorage {
                 .properties("summary", p -> p.text(d -> d.fielddata(true)))
                 .properties("URL", p -> p.text(d -> d.fielddata(true)))
                 .properties("date", p -> p.text(d -> d.fielddata(true)))
-                .properties("time", p -> p.date(d -> d.format("strict_date_optional_time")))
+                .properties("time", p -> p.date(d -> d.format("HH:mm")))
                 .properties("hash", p -> p.text(d -> d.fielddata(true)))
         ));
         log.info("Created index: " + indexName);
